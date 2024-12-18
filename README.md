@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://github.com/weebzone/WZML">
+    <a href="https://github.com/lordgaruda/WZML-X-Phork">
         <kbd>
             <img width="250" src="https://graph.org/file/639fe4239b78e5862b302.jpg" alt="WZML-X Logo">
         </kbd>
@@ -230,7 +230,7 @@
 - Clone this repo:
 
 ```
-git clone https://github.com/weebzone/WZML-X mirrorbot/ && cd mirrorbot
+git clone https://github.com/lordgaruda/WZML-X-Phork wzml-x/ && cd wzml-x
 ```
 
 - For Debian based distros
