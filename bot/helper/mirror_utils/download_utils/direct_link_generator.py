@@ -11,7 +11,7 @@ from re import findall, match, search
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 from lxml.etree import HTML
-from requests import Session, session as req_session, post
+from requests import Session, session as req_session, post, get
 from urllib.parse import parse_qs, quote, unquote, urlparse, urljoin
 from cloudscraper import create_scraper
 from lk21 import Bypass
@@ -171,7 +171,7 @@ def direct_link_generator(link):
         return wetransfer(link)
     elif any(x in domain for x in anonfilesBaseSites):
         raise DirectDownloadLinkException('ERROR: R.I.P Anon Sites!')
-    elif any(x in domain for x in ['terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 'momerybox.com', 'teraboxapp.com', '1024tera.com']):
+    elif any(x in domain for x in ['terabox.com', 'nephobox.com', '4funbox.com', 'mirrobox.com', 'momerybox.com', 'teraboxapp.com', '1024tera.com', "teraboxlink.com", "freeterabox.com", "1024terabox.com", "teraboxshare.com"]):
         return terabox(link)
     elif any(x in domain for x in fmed_list):
         return fembed(link)
@@ -586,17 +586,45 @@ def uploadee(url):
     else:
         raise DirectDownloadLinkException("ERROR: Direct Link not found")
 
-def terabox(url):
-    if not path.isfile('terabox.txt'):
-        raise DirectDownloadLinkException("ERROR: terabox.txt not found")
-    try:
-        jar = MozillaCookieJar('terabox.txt')
-        jar.load()
-    except Exception as e:
-        raise DirectDownloadLinkException(f"ERROR: {e.__class__.__name__}") from e
-    cookies = {}
-    for cookie in jar:
-        cookies[cookie.name] = cookie.value
+def terabox(url, video_quality="HD Video", save_dir="HD_Video"):
+    """Terabox direct link generator
+    https://github.com/Dawn-India/Z-Mirror"""
+    pattern = r"/s/(\w+)|surl=(\w+)"
+    if not search(pattern, url):
+        raise DirectDownloadLinkException("ERROR: Invalid terabox URL")
+    netloc = urlparse(url).netloc
+    terabox_url = url.replace(netloc, "1024tera.com")
+    urls = [
+        "https://ytshorts.savetube.me/api/v1/terabox-downloader",
+        f"https://teraboxvideodownloader.nepcoderdevs.workers.dev/?url={terabox_url}",
+        f"https://terabox.udayscriptsx.workers.dev/?url={terabox_url}",
+        f"https://mavimods.serv00.net/Mavialt.php?url={terabox_url}",
+        f"https://mavimods.serv00.net/Mavitera.php?url={terabox_url}",
+    ]
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0",
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Content-Type": "application/json",
+        "Origin": "https://ytshorts.savetube.me",
+        "Alt-Used": "ytshorts.savetube.me",
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin",
+    }
+    for base_url in urls:
+        try:
+            if "api/v1" in base_url:
+                response = post(base_url, headers=headers, json={"url": terabox_url})
+            else:
+                response = get(base_url)
+            if response.status_code == 200:
+                break
+        except Exception as e:
+            raise DirectDownloadLinkException(f"ERROR: {e.__class__.__name__}") from e
+    else:
+        raise DirectDownloadLinkException("ERROR: Unable to fetch the JSON data")
+    data = response.json()
     details = {'contents':[], 'title': '', 'total_size': 0}
     details["header"] = ' '.join(f'{key}: {value}' for key, value in cookies.items())
 
