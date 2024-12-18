@@ -135,7 +135,7 @@ def direct_link_generator(link):
         return hxfile(link)
     elif '1drv.ms' in domain:
         return onedrive(link)
-    elif 'pixeldrain.com' in domain:
+    elif any(x in domain for x in ["pixeldrain.com", "pixeldra.in"]):
         return pixeldrain(link)
     elif 'antfiles.com' in domain:
         return antfiles(link)
@@ -428,11 +428,11 @@ def pixeldrain(url):
     url = url.strip("/ ")
     file_id = url.split("/")[-1]
     if url.split("/")[-2] == "l":
-        info_link = f"https://pixeldrain.com/api/list/{file_id}"
-        dl_link = f"https://pixeldrain.com/api/list/{file_id}/zip?download"
+        info_link = f"https://pixeldra.in/api/list/{file_id}"
+        dl_link = f"https://pixeldra.in/api/list/{file_id}/zip?download"
     else:
-        info_link = f"https://pixeldrain.com/api/file/{file_id}/info"
-        dl_link = f"https://pixeldrain.com/api/file/{file_id}?download"
+        info_link = f"https://pixeldra.in/api/file/{file_id}/info"
+        dl_link = f"https://pixeldra.in/api/file/{file_id}?download"
     with create_scraper() as session:
         try:
             resp = session.get(info_link).json()
